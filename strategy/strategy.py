@@ -2,7 +2,7 @@
 
 
 from game.hello_world_response import HelloWorldResponse
-from game.plane_type import PlaneType
+from game.plane import PlaneType
 from typing import Dict
 
 

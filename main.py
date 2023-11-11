@@ -76,10 +76,8 @@ def serve(port: int):
                     client.write(response_str)
                 elif phase == ReceivedMessagePhase.PLANE_SELECT:
                     response = strategy.select_planes()
-
-                    # Convert the map of enums to a JSON-compatible dict
-                    response_list = [{str(plane_type): count} for plane_type, count in response.items()]
-                    response_str = json.dumps(response_list)
+                    # Convert to JSON-compatible format
+                    response_str = json.dumps(response)
 
                     client.write(response_str)
                 elif phase == ReceivedMessagePhase.FINISH:

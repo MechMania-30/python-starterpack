@@ -3,21 +3,9 @@
 
 from game.hello_world_response import HelloWorldResponse
 from game.plane import PlaneType
-from typing import Dict
 
 
 class Strategy:
-    def select_planes(self) -> Dict[str, int]: # str: plane_type, int: count
-        selected_planes = {}
-        # Logic for player to select planes
-        # Sample choice
-        ''' 
-        selected_planes = {
-            PlaneType.BASIC: 10,
-        }
-        '''
-        return selected_planes
-    
     def hello_world(self, message: str) -> HelloWorldResponse:
         """
         Test hello world method that should be deleted in the final release
@@ -25,3 +13,10 @@ class Strategy:
         Return a hello world response
         """
         raise NotImplementedError("Must implement the decide_moves method!")
+    
+    def select_planes(self) -> list[dict[str, int]]:
+        selected_planes = []
+        '''
+        Return a list of dictionaries of counts of selected plane types
+        '''
+        return selected_planes

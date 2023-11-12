@@ -1,6 +1,6 @@
 # This defines the general layout your strategy method will inherit. Do not edit this.
 
-
+from game.plane import PlaneType
 from game.hello_world_response import HelloWorldResponse
 
 
@@ -13,7 +13,7 @@ class Strategy:
         """
         raise NotImplementedError("Must implement the decide_moves method!")
     
-    def select_planes(self) -> list[dict[str, int]]:
+    def select_planes(self):
         '''
         Return a list of dictionaries of counts of selected plane types
         '''

@@ -76,7 +76,11 @@ def serve(port: int):
                     client.write(response_str)
                 elif phase == ReceivedMessagePhase.PLANE_SELECT:
                     response = strategy.select_planes()
+
                     # Convert to JSON-compatible format
+                    for entry in response:
+                        entry["type"] = entry["type"].value
+
                     response_str = json.dumps(response)
 
                     client.write(response_str)

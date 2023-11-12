@@ -7,5 +7,8 @@ class RandomStrategy(Strategy):
     def hello_world(self, message: str) -> HelloWorldResponse:
         return HelloWorldResponse(True)
     
-    def select_planes(self) -> list[dict[str, int]]:
-        return [{PlaneType.BASIC.value: random.randint(5, 10)}]
+    def select_planes(self):
+        return [{
+            "type": PlaneType.BASIC, 
+            "count": random.randint(5, 10)
+            }]

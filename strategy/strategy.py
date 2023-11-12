@@ -2,6 +2,7 @@
 
 from game.plane import PlaneType
 from game.hello_world_response import HelloWorldResponse
+from typing import Union
 
 
 class Strategy:
@@ -13,8 +14,8 @@ class Strategy:
         """
         raise NotImplementedError("Must implement the decide_moves method!")
     
-    def select_planes(self) -> list[dict[str[PlaneType, int]]]:
+    def select_planes(self) -> list[dict[PlaneType, int]]:
         '''
-        Return a list of dictionaries of counts of selected plane types
+        Return a list of dictionaries of type (PlaneType) and count (int)
         '''
         raise NotImplementedError("Must implement select_planes method!")

@@ -2,7 +2,6 @@
 
 from game.plane import PlaneType
 from game.hello_world_response import HelloWorldResponse
-from typing import Union
 
 
 class Strategy:

@@ -14,8 +14,8 @@ class Strategy:
         """
         raise NotImplementedError("Must implement the decide_moves method!")
     
-    def select_planes(self) -> list[dict[PlaneType, int]]:
+    def select_planes(self) -> dict[PlaneType, int]:
         '''
-        Return a list of dictionaries of type (PlaneType) and count (int)
+        Return a dictionary mapping PlaneType to int
         '''
         raise NotImplementedError("Must implement select_planes method!")

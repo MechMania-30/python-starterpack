@@ -4,6 +4,7 @@ import json
 import os
 import traceback
 import sys
+from game.plane import Plane
 
 from network.client import Client
 from network.received_message import ReceivedMessage, ReceivedMessagePhase
@@ -57,6 +58,8 @@ def serve(port: int):
 
     print(f"Connected to server on port {port}")
 
+    strategy = None
+
     while True:
         raw_received = client.read()
 
@@ -66,14 +69,17 @@ def serve(port: int):
                 received_message = ReceivedMessage.deserialize(received)
                 phase = received_message.phase
                 data = received_message.data
-                strategy = choose_strategy()
+
+                if strategy is None and phase != ReceivedMessagePhase.HELLO_WORLD:
+                    raise RuntimeError("Invalid local state, no hello world sent!")
 
                 if phase == ReceivedMessagePhase.HELLO_WORLD:
-                    response = strategy.hello_world(data["message"])
+                    our_team = data["team"]
+                    strategy = choose_strategy(our_team)
 
-                    response_str = json.dumps(response.serialize())
-
-                    client.write(response_str)
+                    client.write(json.dumps({
+                        "good": True,
+                    }))
                 elif phase == ReceivedMessagePhase.PLANE_SELECT:
                     response = strategy.select_planes()
 
@@ -83,6 +89,16 @@ def serve(port: int):
                         serialized_response[type.value] = count
 
                     response_str = json.dumps(serialized_response)
+
+                    client.write(response_str)
+                elif phase == ReceivedMessagePhase.STEER_INPUT:
+                    planes = []
+
+                    for blob in data:
+                        planes.append(Plane.deserialize(blob))
+
+                    response = strategy.steer_input(planes)
+                    response_str = json.dumps(response)
 
                     client.write(response_str)
                 elif phase == ReceivedMessagePhase.FINISH:

@@ -2,11 +2,16 @@ import math
 
 # Helper functions for the helper functions
 def norm(v):
-    return math.sqrt(v[0]**2, v[1]**2)
+    return math.sqrt(v[0]**2 + v[1]**2)
 def distance(p1, p2):
     return math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)
 def dot(v1, v2):
     return v1[0]*v2[0]+v1[1]*v2[1]
+def neg(v):
+    return [-v[0], -v[1]]
+def add(v1, v2):
+    return [v1[0] + v2[0], v1[1] + v2[1]]
+
 def intersection_point(p1, p2, q1, q2):
     # Calculate slopes of the lines
     slope_p = (p2[1] - p1[1]) / (p2[0] - p1[0]) if p2[0] != p1[0] else float('inf')
@@ -30,14 +35,14 @@ def intersection_point(p1, p2, q1, q2):
 
     return (x, y)
 def angle_between_vectors(a, b):
-    dot = dot(a, b)
+    dot_prod = dot(a, b)
     magnitude_a = norm(a)
     magnitude_b = norm(b)
 
     if magnitude_a == 0 or magnitude_b == 0:
         return None
 
-    cos_angle = dot / (magnitude_a * magnitude_b)
+    cos_angle = dot_prod / (magnitude_a * magnitude_b)
     angle = math.acos(cos_angle)
     return angle
 
@@ -60,26 +65,62 @@ def degree_to_steer(change_in_angle: float, speed: float, min_turn: float):
 # Gives offset of a plane with given characteristics at turn t.
 def get_path_offset(t: float, steer: float, init_angle: float, speed: float, min_turn: float):
     radius = steer_to_radius(steer, min_turn)
-    init_angle_rad = math.radians(init_angle)-math.pi*3/2
+    #init angle is the direction the plane faces, so we need to shift to get the offset
+    init_angle_rad = math.radians(init_angle)
+    if (steer == 0):
+        return (speed * math.cos(init_angle_rad), speed * math.sin(init_angle_rad))
+    elif (steer < 0):
+        init_angle_rad += math.pi / 2
+    else:
+        init_angle_rad -= math.pi / 2
     x = math.cos(t*(speed/radius)+init_angle_rad)
     y = math.sin(t*(speed/radius)+init_angle_rad)
 
     x -= math.cos(init_angle_rad)
     y -= math.sin(init_angle_rad)
 
-    return (x*radius, y*radius)
+    return (x*abs(radius), y*abs(radius))
 
 # Gives (steer, num_turns) for a plane to pass through a given offset point. 
 def point_to_steer(x: float, y: float, init_angle: float, min_turn: float, speed: float):
+    # this function finds the center of the unique circle by finding the intersection between
+    # the line perpendicular to the facing of the plane, and the line of points equidistant to
+    # the start and end point (perpendicular bisector)
     rad = math.radians(init_angle)
-    cent_vec = [math.cos(rad+math.pi/2), math.sin(rad+math.pi/2)]
-    #finds perpendicular vector to the line from starting point (0,0) to offset
+    heading_perp_vec = [math.cos(rad+math.pi/2), math.sin(rad+math.pi/2)]
     other_vec_start = [x/2, y/2]
     other_vec_end = [-y + x/2, x + y/2]
-    cent = intersection_point([0,0], cent_vec, other_vec_start, other_vec_end)
-    if cent==None:
-        return (0, norm([x,y])/speed)
-    else:
-        return (radius_to_steer(norm(cent), min_turn), angle_between_vectors(cent_vec, [-y, x])*norm(cent)/speed)
-
+    center = intersection_point([0,0], heading_perp_vec, other_vec_start, other_vec_end)
     
+    if center==None:
+        return (0, norm([x,y])/speed)
+    radius = norm(center)
+    if dot(heading_perp_vec, center) < 0:
+        radius = -radius
+    return (radius_to_steer(radius, min_turn), angle_between_vectors(neg(center), add(neg(center), [x, y]))*abs(radius)/speed)
+
+
+# unit testing
+if __name__ == "__main__":
+    # tests assume positive turn is left, negative is right
+    # this also implies postive turn radius is left, negative is right
+    def in_range(a, b, tol=.0001):
+        return abs(a-b) < tol
+    
+    x, y = get_path_offset(1, 1, 0, 5*math.pi, 10)
+    print(in_range(x, 10) and in_range(y, 10), x, y)
+
+    x, y = get_path_offset(1, -1, 0, 5*math.pi, 10)
+    print(in_range(x, 10) and in_range(y, -10), x, y)
+
+    x, y = get_path_offset(1, 1, 90, 5*math.pi, 10)
+    print(in_range(x, -10) and in_range(y, 10), x, y)
+
+    steer, turns = point_to_steer(10, -10, 0, 10, 5*math.pi)
+    print(in_range(steer, -1) and in_range(turns, 1), steer, turns)
+
+    steer, turns = point_to_steer(10, 10, 90, 10, 5*math.pi)
+    print(in_range(steer, -1) and in_range(turns, 1), steer, turns)
+
+    steer, turns = point_to_steer(-10, 10, 90, 10, 5*math.pi)
+    print(in_range(steer, 1) and in_range(turns, 1), steer, turns)

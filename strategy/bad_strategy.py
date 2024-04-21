@@ -10,19 +10,21 @@ class BadStrategy(Strategy):
     def select_planes(self) -> dict[PlaneType, int]:
         return {PlaneType.BASIC: random.randint(5, 10)}
     
-    def steer_input(self, planes: list[Plane]) -> dict[str, int]:
+    def steer_input(self, planes: dict[str, Plane]) -> dict[str, int]:
         response = dict()
 
-        for plane in planes:
+        print(planes)
+
+        for id, plane in planes.items():
             if plane.team != self.team:
                 continue
 
             if self.my_counter < 5:
-                response[plane.id] = 0
+                response[id] = 0
             else:
-                if plane.id not in self.my_steers:
-                    self.my_steers[plane.id] = random.random() * 2 - 1
-                response[plane.id] = self.my_steers[plane.id]
+                if id not in self.my_steers:
+                    self.my_steers[id] = random.random() * 2 - 1
+                response[id] = self.my_steers[id]
 
 
         self.my_counter += 1

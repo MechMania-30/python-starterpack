@@ -16,7 +16,7 @@ class Strategy:
         '''
         raise NotImplementedError("Must implement select_planes method!")
 
-    def steer_input(self, planes: list[Plane]) -> dict[str, int]:
+    def steer_input(self, planes: dict[str, Plane]) -> dict[str, int]:
         '''
         Return a dictionary mapping each plane id to the amount they will steer [-1, 1], where positive is clockwise
         '''

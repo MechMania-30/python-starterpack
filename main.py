@@ -6,6 +6,7 @@ import traceback
 import sys
 from game.plane import Plane
 
+from game.plane_data import PLANE_TYPE_TO_STATS, PlaneStats, PlaneType
 from network.client import Client
 from network.received_message import ReceivedMessage, ReceivedMessagePhase
 from strategy.choose_strategy import choose_strategy
@@ -75,6 +76,8 @@ def serve(port: int):
 
                 if phase == ReceivedMessagePhase.HELLO_WORLD:
                     our_team = data["team"]
+                    for type, stats in data["stats"].items():
+                        PLANE_TYPE_TO_STATS[PlaneType[type]] = PlaneStats.deserialize(stats)
                     strategy = choose_strategy(our_team)
 
                     client.write(json.dumps({
@@ -92,10 +95,10 @@ def serve(port: int):
 
                     client.write(response_str)
                 elif phase == ReceivedMessagePhase.STEER_INPUT:
-                    planes = []
+                    planes = dict()
 
-                    for blob in data:
-                        planes.append(Plane.deserialize(blob))
+                    for id, blob in data.items():
+                        planes[id] = Plane.deserialize(blob)
 
                     response = strategy.steer_input(planes)
                     response_str = json.dumps(response)

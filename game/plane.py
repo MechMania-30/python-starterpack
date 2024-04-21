@@ -25,6 +25,7 @@ class Plane:
     type: PlaneType
     position: Position
     angle: float
+    health: int
 
     def deserialize(blob: object) -> "Plane":
         try:
@@ -33,7 +34,8 @@ class Plane:
                 blob["team"],
                 PlaneType[blob["type"]],
                 Position.deserialize(blob["position"]),
-                blob["angle"]
+                blob["angle"],
+                blob["health"]
             )
         except:
             print("Failed to validate plane json")

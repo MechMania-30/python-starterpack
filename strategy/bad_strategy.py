@@ -13,8 +13,6 @@ class BadStrategy(Strategy):
     def steer_input(self, planes: dict[str, Plane]) -> dict[str, int]:
         response = dict()
 
-        print(planes)
-
         for id, plane in planes.items():
             if plane.team != self.team:
                 continue

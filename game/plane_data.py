@@ -15,6 +15,20 @@ class Position:
             raise
 
         return pos
+    
+    def __add__(self, o):
+        return Position(self.x + o.x, self.y + o.y)
+    def __sub__(self, o):
+        return Position(self.x - o.x, self.y - o.y)
+    def __rmul__(self, lhs):
+        return self * lhs
+    def __mul__(self, o):
+        return Position(o*self.x, o*self.y)
+    def __eq__(self, o):
+        return self.x == o.x and self.y == o.y
+    def __neg__(self):
+        return Position(-self.x, -self.y)
+    
 
 class PlaneType(Enum):
     STANDARD = "STANDARD"

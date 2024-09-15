@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
-from game.plane_data import PlaneStats, PlaneType, Position
+from game.plane_data import PlaneStats, PlaneType, Vector
 
 @dataclass
 class Plane:
     id: str
     team: str
     type: PlaneType
-    position: Position
+    position: Vector
     angle: float
     health: int
     stats: PlaneStats
@@ -18,7 +18,7 @@ class Plane:
                 blob["id"],
                 blob["team"],
                 PlaneType[blob["type"]],
-                Position.deserialize(blob["position"]),
+                Vector.deserialize(blob["position"]),
                 blob["angle"],
                 blob["health"],
                 blob["stats"]

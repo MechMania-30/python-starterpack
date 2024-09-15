@@ -3,13 +3,13 @@ from enum import Enum
 import math
 
 @dataclass
-class Position:
+class Vector:
     x: float
     y: float
 
-    def deserialize(blob: object) -> "Position":
+    def deserialize(blob: object) -> "Vector":
         try:
-            pos = Position(blob["x"], blob["y"])
+            pos = Vector(blob["x"], blob["y"])
         except:
             print("Failed to validate position json")
             raise
@@ -17,17 +17,17 @@ class Position:
         return pos
     
     def __add__(self, o):
-        return Position(self.x + o.x, self.y + o.y)
+        return Vector(self.x + o.x, self.y + o.y)
     def __sub__(self, o):
-        return Position(self.x - o.x, self.y - o.y)
+        return Vector(self.x - o.x, self.y - o.y)
     def __rmul__(self, lhs):
         return self * lhs
     def __mul__(self, o):
-        return Position(o*self.x, o*self.y)
+        return Vector(o*self.x, o*self.y)
     def __eq__(self, o):
         return self.x == o.x and self.y == o.y
     def __neg__(self):
-        return Position(-self.x, -self.y)
+        return Vector(-self.x, -self.y)
     
     def dot(self, o):
         return self.x*o.x+self.y*o.y

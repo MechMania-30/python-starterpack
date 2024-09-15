@@ -1,7 +1,7 @@
 import math
-from game.plane import Plane, Position
+from game.plane import Plane, Vector
 
-def intersection_point(p1: Position, p2: Position, q1: Position, q2: Position):
+def intersection_point(p1: Vector, p2: Vector, q1: Vector, q2: Vector):
     """
     Returns the intersection of two lines, one of which goes through points p1 and p2,
     and the other of which goes through points q1 and q2.
@@ -29,9 +29,9 @@ def intersection_point(p1: Position, p2: Position, q1: Position, q2: Position):
         x = ((q1.y - p1.y) + slope_p * p1.x - slope_q * q1.x) / (slope_p - slope_q)
         y = slope_p * (x - p1.x) + p1.y
 
-    return Position(x, y)
+    return Vector(x, y)
 
-def angle_between_vectors(a: Position, b: Position):
+def angle_between_vectors(a: Vector, b: Vector):
     """
     Returns the angle between two vectors a, b.
     """
@@ -101,7 +101,7 @@ def get_path_offset(t: float, steer: float, init_angle: float, speed: float, min
     y -= math.sin(init_angle_rad)
 
     # Scale the final offset by the radius of the turning circle.
-    return Position(x*abs(radius), y*abs(radius))
+    return Vector(x*abs(radius), y*abs(radius))
 
 def plane_path_offset(t: float, steer: float, plane: Plane):
     """
@@ -119,7 +119,7 @@ def plane_path_offset(t: float, steer: float, plane: Plane):
     off = get_path_offset(t, steer, plane.angle, plane.stats.speed, turn_radius)
     return plane.position + off
 
-def fly_to_offset(off: Position, init_angle: float, min_turn: float, speed: float):
+def fly_to_offset(off: Vector, init_angle: float, min_turn: float, speed: float):
     """
     Two points and a tangent line uniquely defines a circle. Thus, this function returns the
     the steer needed to travel along said circle, as well as the number of turns to reach
@@ -149,20 +149,20 @@ def fly_to_offset(off: Position, init_angle: float, min_turn: float, speed: floa
     if (x == 0 and y == 0):
         return (0,0)
     rad = math.radians(init_angle)
-    heading_perp_vec = Position(math.cos(rad+math.pi/2), math.sin(rad+math.pi/2))
-    other_vec_start = Position(x/2, y/2)
-    other_vec_end = Position(-y + x/2, x + y/2)
-    center = intersection_point(Position(0,0), heading_perp_vec, other_vec_start, other_vec_end)
+    heading_perp_vec = Vector(math.cos(rad+math.pi/2), math.sin(rad+math.pi/2))
+    other_vec_start = Vector(x/2, y/2)
+    other_vec_end = Vector(-y + x/2, x + y/2)
+    center = intersection_point(Vector(0,0), heading_perp_vec, other_vec_start, other_vec_end)
     
     if center==None:
-        return (0, Position(x,y).norm()/speed)
+        return (0, Vector(x,y).norm()/speed)
     radius = center.norm()
     if heading_perp_vec.dot(center) < 0:
         radius = -radius
 
-    return (radius_to_steer(radius, min_turn), angle_between_vectors(-center, -center + Position(x, y))*abs(radius)/speed)
+    return (radius_to_steer(radius, min_turn), angle_between_vectors(-center, -center + Vector(x, y))*abs(radius)/speed)
 
-def plane_find_path_to_point(target: Position, plane: Plane):
+def plane_find_path_to_point(target: Vector, plane: Plane):
     """
     Wrapper around fly_to_offset for a plane.
     Gives (steer, num_turns) for a plane to pass through a given ABSOLUTE point.
@@ -181,7 +181,7 @@ def plane_find_path_to_point(target: Position, plane: Plane):
     turn_radius = degree_to_radius(plane.stats.turn_speed, plane.stats.speed)
     return fly_to_offset(off, plane.angle, turn_radius, plane.stats.speed)
 
-def unavoidable_crash(pos: Position, angle: float, min_turn: float, lb = -50, rb = 50, db = -50, ub = 50):
+def unavoidable_crash(pos: Vector, angle: float, min_turn: float, lb = -50, rb = 50, db = -50, ub = 50):
     """
     Returns true if a plane at a given point and angle cannot avoid flying out of the given bounds
 
@@ -206,9 +206,9 @@ def unavoidable_crash(pos: Position, angle: float, min_turn: float, lb = -50, rb
     rad = math.radians(angle)
 
     # Finds the centers of the smallest turning circles possible
-    perp_vec = Position(math.cos(rad + math.pi/2), math.sin(rad + math.pi/2))
-    lvec = Position(x, y) + (min_turn * perp_vec)
-    rvec = Position(x, y) + (-min_turn * perp_vec)
+    perp_vec = Vector(math.cos(rad + math.pi/2), math.sin(rad + math.pi/2))
+    lvec = Vector(x, y) + (min_turn * perp_vec)
+    rvec = Vector(x, y) + (-min_turn * perp_vec)
 
     # Checks if any point in either circle is out of bounds
     lob = False

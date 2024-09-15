@@ -35,6 +35,7 @@ class Position:
         return (self.x**2 + self.y**2)**.5
     def distance(self, o):
         return ((self.x-o.x)**2 + (self.y-o.y)**2)**.5
+    
 class PlaneType(Enum):
     STANDARD = "STANDARD"
     FLYING_FORTRESS = "FLYING_FORTRESS"
